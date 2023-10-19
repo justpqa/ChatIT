@@ -1,0 +1,15 @@
+version: '3'
+services:
+  chatapi:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      GOOGLE_APPLICATION_CREDENTIALS: /.google/credentials/google_credentials.json
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./src:/src
+      - ~/.google/credentials:/.google/credentials
+    env_file:
+      - ./.env
