@@ -11,7 +11,7 @@ from google.cloud import storage
 import re
 import os
 from dotenv import load_dotenv
-from kb_query_engine.scraping_kb import KBIngestRetrieve 
+from kb_query_engine.kb_engine import KBIngestRetrieve 
 import time
 load_dotenv()
 
