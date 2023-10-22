@@ -22,7 +22,7 @@ class KBIngestRetrieve:
         model_name: str = "BAAI/bge-base-en-v1.5", 
         embed_dim: int = 768,
         query_mode: str = "default",
-        top_k: int = 1
+        top_k: int = 5
     ) -> None:
         # need env variable
         pinecone.init(api_key=pinecone_api_key, environment=pinecone_env)
@@ -44,25 +44,26 @@ class KBIngestRetrieve:
         self.query_mode = query_mode
         self.top_k = top_k 
     
-    def ingest_from_gcp_bucket(self, bucket) -> None:
+    def ingest_from_gcp_bucket(self, bucket, sen_splitter) -> None:
         # ingestion from a bucket, need a function for a directory later
         nodes = []
         for inx, b in enumerate(tqdm(list(bucket.list_blobs()))):
             # extract the text and process it
             t = bucket.blob(b.name).download_as_text()
-            t = re.sub(r'[^a-zA-Z0-9 \\.]', ' ', t)
-            t = re.sub(r'\s+', ' ', t)
+            #t = re.sub(r'[^a-zA-Z0-9 \\.]', ' ', t)
+            #t = re.sub(r'\s+', ' ', t)
             
             # split the text
-            #curr_text_chunks = text_splitter.split_text(t)
+            curr_text_chunks = sen_splitter.split_text(t)
             
             # add these chunks to nodes with embedding
             #for chunk in curr_text_chunks:
-            node = TextNode(text=t)
-            src_doc_inx = inx
-            src_doc = t
-            node.embedding = self.embed_model.get_text_embedding(node.get_content(metadata_mode="all"))
-            nodes.append(node)
+            for chunk in curr_text_chunks:
+                node = TextNode(text=chunk)
+                src_doc_inx = inx
+                src_doc = t
+                node.embedding = self.embed_model.get_text_embedding(node.get_content(metadata_mode="all"))
+                nodes.append(node)
             
         # add the list of nodes to vector store
         self.vector_store.add(nodes)   

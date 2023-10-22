@@ -6,6 +6,7 @@ from llama_index.embeddings import HuggingFaceEmbedding
 from llama_index.retrievers import BaseRetriever
 from llama_index.query_engine import RetrieverQueryEngine
 from llama_index.indices.service_context import ServiceContext
+from llama_index.text_splitter import SentenceSplitter
 import pinecone
 from google.cloud import storage
 import re
@@ -22,9 +23,10 @@ app = Flask(__name__)
 api_key = os.environ["PINECONE_API_KEY"]
 environment = os.environ["PINECONE_ENV"]
 my_index = os.environ["PINECONE_INDEX"]
-embed_dim = os.environ["DEFAULT_EMBED_DIM"]
+embed_dim = int(os.environ["DEFAULT_EMBED_DIM"])
 storage_client = storage.Client()
 bucket = storage_client.bucket(os.environ["bucket"])
+sen_splitter = SentenceSplitter(separator = ".", paragraph_separator = "/n/n/n")
 
 # initialize pinecone env
 pinecone.init(api_key=api_key, environment=environment)
@@ -42,20 +44,21 @@ def retrieve(query_str):
         return jsonify({"Error": "The vector store index is currently empty."})
 
 # define the ingest method in case there is upload to knowledge base
-@app.route('/ingest/<token>', methods=["POST"])
+@app.route('/ingest/<token>', methods=["GET", "POST"])
 def ingest(token):
     # need to check if it is right token
-    if token:
+    if token == "phan4":
         # delete current index
-        pinecone.delete_index(my_index)
-        time.sleep(15)
+        if my_index in pinecone.list_indexes():
+            pinecone.delete_index(my_index)
+            time.sleep(15)
         
         # reinitialize index and create new vector store for ingest
         pinecone.create_index(my_index, dimension = embed_dim, metric="euclidean", pod_type="p1")
-        kbir.pinecone_index = pinecone.index(my_index)
+        kbir.pinecone_index = pinecone.Index(my_index)
         kbir.has_vector = False
         kbir.vector_store = PineconeVectorStore(pinecone_index=kbir.pinecone_index)
-        kbir.ingest_from_gcp_bucket(bucket)
+        kbir.ingest_from_gcp_bucket(bucket, sen_splitter)
         
         return jsonify({"Response": "Success in ingesting the data"})
     else:
