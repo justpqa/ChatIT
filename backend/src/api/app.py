@@ -20,6 +20,7 @@ load_dotenv()
 app = Flask(__name__)
 
 # initialize env variable
+admin = os.environ["admin"]
 api_key = os.environ["PINECONE_API_KEY"]
 environment = os.environ["PINECONE_ENV"]
 my_index = os.environ["PINECONE_INDEX"]
@@ -47,7 +48,7 @@ def retrieve(query_str):
 @app.route('/ingest/<token>', methods=["GET", "POST"])
 def ingest(token):
     # need to check if it is right token
-    if token == "phan4":
+    if token == admin:
         # delete current index
         if my_index in pinecone.list_indexes():
             pinecone.delete_index(my_index)

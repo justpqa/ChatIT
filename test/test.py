@@ -1,22 +1,21 @@
-import requests 
-    
-url = "http://localhost:5000/ingest/phan4"
-response = requests.get(url)
-if response.status_code == 200:
-    # Request was successful
-    data = response.json()  # Assuming the response contains JSON data
-    print(data)
-else:
-    # Request failed
-    print(f"Request failed with status code {response.status_code}")   
+import requests
+import pytest
+from dotenv import load_dotenv 
+load_dotenv()
 
-# testing the code for calling the api
-url = "http://localhost:5000/retrieve/eduroam"
-response = requests.get(url)
-if response.status_code == 200:
-    # Request was successful
-    data = response.json()  # Assuming the response contains JSON data
-    print(data)
-else:
-    # Request failed
-    print(f"Request failed with status code {response.status_code}")
+def test_ingest():
+    url = os.environ["ingest_url"]
+    response = requests.get(url)
+    assert response.status_code == 200
+    data = response.json()
+    assert data["Response"] = "Success in ingesting the data"
+
+def test_query():
+    question = "How to connect to eduroam"
+    question = "%20".join(question.split(" "))
+    url = os.environ["query_url"] + question
+    response = requests.get(url)
+    assert response.status_code == 200
+    data = response.json()
+    assert "answer" in data
+    assert len(data["answer"]) > 0
