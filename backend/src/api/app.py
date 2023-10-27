@@ -13,6 +13,7 @@ import re
 import os
 from dotenv import load_dotenv
 from kb_query_engine.kb_engine import KBIngestRetrieve 
+from kb_query_engine.scraping_kb import scraping_IT
 import time
 load_dotenv()
 
@@ -49,6 +50,9 @@ def retrieve(query_str):
 def ingest(token):
     # need to check if it is right token
     if token == admin:
+        # reingest and add to a new folder
+        ingest_folder = scraping_IT()
+        
         # delete current index
         if my_index in pinecone.list_indexes():
             pinecone.delete_index(my_index)
@@ -59,7 +63,7 @@ def ingest(token):
         kbir.pinecone_index = pinecone.Index(my_index)
         kbir.has_vector = False
         kbir.vector_store = PineconeVectorStore(pinecone_index=kbir.pinecone_index)
-        kbir.ingest_from_gcp_bucket(bucket, sen_splitter)
+        kbir.ingest_from_gcs(bucket, ingest_folder, sen_splitter)
         
         return jsonify({"Response": "Success in ingesting the data"})
     else:

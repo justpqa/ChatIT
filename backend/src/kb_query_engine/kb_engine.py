@@ -44,10 +44,10 @@ class KBIngestRetrieve:
         self.query_mode = query_mode
         self.top_k = top_k 
     
-    def ingest_from_gcp_bucket(self, bucket, sen_splitter) -> None:
+    def ingest_from_gcp_bucket(self, bucket, folder, sen_splitter) -> None:
         # ingestion from a bucket, need a function for a directory later
         nodes = []
-        for inx, b in enumerate(tqdm(list(bucket.list_blobs()))):
+        for inx, b in enumerate(tqdm(list(bucket.list_blobs(prefix = folder)))):
             # extract the text and process it
             t = bucket.blob(b.name).download_as_text()
             #t = re.sub(r'[^a-zA-Z0-9 \\.]', ' ', t)

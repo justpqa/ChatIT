@@ -4,6 +4,8 @@ from dotenv import load_dotenv
 from google.cloud import storage
 import os
 from tqdm import tqdm
+from datetime import datetime
+load_dotenv()
 
 class Scraping:
     def __init__(self, url, mode, source):
@@ -37,9 +39,8 @@ class Scraping:
             res = main_content.text
             return res
             
-def main():
-    # code for setting up
-    load_dotenv()
+def scraping_IT():
+    folder_name = "IT " + str(datetime.now())
     
     mainURL = os.environ.get("mainurl")
     source = os.environ.get("headurl")
@@ -62,8 +63,10 @@ def main():
     for i in tqdm(range(len(article_lst))):
         temp = Scraping(article_lst[i], "get_text", source)
         content = temp.scraping()
-        blob = bucket.blob(f"article_{i}.txt")
+        blob = bucket.blob(f"{folder_name}/article_{i}.txt")
         blob.upload_from_string(content)
+    
+    return folder_name
 
 if __name__ == "__main__":
-    main()        
+    scraping_IT()        
