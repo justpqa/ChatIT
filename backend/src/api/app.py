@@ -13,7 +13,6 @@ import re
 import os
 from dotenv import load_dotenv
 from kb_query_engine.kb_engine import KBIngestRetrieve 
-from kb_query_engine.scraping_kb import scraping_IT
 import time
 load_dotenv()
 
@@ -25,10 +24,6 @@ admin = os.environ["admin"]
 api_key = os.environ["PINECONE_API_KEY"]
 environment = os.environ["PINECONE_ENV"]
 my_index = os.environ["PINECONE_INDEX"]
-embed_dim = int(os.environ["DEFAULT_EMBED_DIM"])
-storage_client = storage.Client()
-bucket = storage_client.bucket(os.environ["bucket"])
-sen_splitter = SentenceSplitter(separator = ".", paragraph_separator = "/n/n/n")
 
 # initialize pinecone env
 pinecone.init(api_key=api_key, environment=environment)

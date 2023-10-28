@@ -1,0 +1,12 @@
+requests
+beautifulsoup4
+google-cloud-storage
+python-dotenv
+tqdm
+torch
+transformers
+accelerate
+llama-index
+llama-cpp-python
+pinecone-client
+flask
