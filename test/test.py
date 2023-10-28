@@ -3,13 +3,6 @@ import pytest
 from dotenv import load_dotenv 
 load_dotenv()
 
-def test_ingest():
-    url = os.environ["ingest_url"]
-    response = requests.get(url)
-    assert response.status_code == 200
-    data = response.json()
-    assert data["Response"] = "Success in ingesting the data"
-
 def test_query():
     question = "How to connect to eduroam"
     question = "%20".join(question.split(" "))

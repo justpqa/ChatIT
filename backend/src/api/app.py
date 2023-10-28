@@ -45,29 +45,5 @@ def retrieve(query_str):
     else:
         return jsonify({"Error": "The vector store index is currently empty."})
 
-# define the ingest method in case there is upload to knowledge base
-@app.route('/ingest/<token>', methods=["GET", "POST"])
-def ingest(token):
-    # need to check if it is right token
-    if token == admin:
-        # reingest and add to a new folder
-        ingest_folder = scraping_IT()
-        
-        # delete current index
-        if my_index in pinecone.list_indexes():
-            pinecone.delete_index(my_index)
-            time.sleep(15)
-        
-        # reinitialize index and create new vector store for ingest
-        pinecone.create_index(my_index, dimension = embed_dim, metric="euclidean", pod_type="p1")
-        kbir.pinecone_index = pinecone.Index(my_index)
-        kbir.has_vector = False
-        kbir.vector_store = PineconeVectorStore(pinecone_index=kbir.pinecone_index)
-        kbir.ingest_from_gcs(bucket, ingest_folder, sen_splitter)
-        
-        return jsonify({"Response": "Success in ingesting the data"})
-    else:
-        return jsonify({"Response": "Error: You do not have permission to perform this action"})
-
 if __name__ == '__main__':
     app.run(debug=True)
