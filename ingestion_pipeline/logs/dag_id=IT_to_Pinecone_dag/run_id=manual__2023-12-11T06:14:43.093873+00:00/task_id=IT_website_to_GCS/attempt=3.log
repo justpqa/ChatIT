@@ -1,0 +1,123 @@
+[2023-12-11T06:32:23.707+0000] {taskinstance.py:1103} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: IT_to_Pinecone_dag.IT_website_to_GCS manual__2023-12-11T06:14:43.093873+00:00 [queued]>
+[2023-12-11T06:32:23.723+0000] {taskinstance.py:1103} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: IT_to_Pinecone_dag.IT_website_to_GCS manual__2023-12-11T06:14:43.093873+00:00 [queued]>
+[2023-12-11T06:32:23.724+0000] {taskinstance.py:1308} INFO - Starting attempt 3 of 3
+[2023-12-11T06:32:23.739+0000] {taskinstance.py:1327} INFO - Executing <Task(PythonOperator): IT_website_to_GCS> on 2023-12-11 06:14:43.093873+00:00
+[2023-12-11T06:32:23.763+0000] {standard_task_runner.py:57} INFO - Started process 572 to run task
+[2023-12-11T06:32:23.770+0000] {standard_task_runner.py:84} INFO - Running: ['***', 'tasks', 'run', 'IT_to_Pinecone_dag', 'IT_website_to_GCS', 'manual__2023-12-11T06:14:43.093873+00:00', '--job-id', '11', '--raw', '--subdir', 'DAGS_FOLDER/article_ingestion.py', '--cfg-path', '/tmp/tmpnpddt_mf']
+[2023-12-11T06:32:23.774+0000] {standard_task_runner.py:85} INFO - Job 11: Subtask IT_website_to_GCS
+[2023-12-11T06:32:23.841+0000] {task_command.py:410} INFO - Running <TaskInstance: IT_to_Pinecone_dag.IT_website_to_GCS manual__2023-12-11T06:14:43.093873+00:00 [running]> on host 5725e2187d30
+[2023-12-11T06:32:23.957+0000] {taskinstance.py:1545} INFO - Exporting env vars: AIRFLOW_CTX_DAG_EMAIL='***@***.com' AIRFLOW_CTX_DAG_OWNER='***' AIRFLOW_CTX_DAG_ID='IT_to_Pinecone_dag' AIRFLOW_CTX_TASK_ID='IT_website_to_GCS' AIRFLOW_CTX_EXECUTION_DATE='2023-12-11T06:14:43.093873+00:00' AIRFLOW_CTX_TRY_NUMBER='3' AIRFLOW_CTX_DAG_RUN_ID='manual__2023-12-11T06:14:43.093873+00:00'
+[2023-12-11T06:32:24.066+0000] {taskinstance.py:1824} ERROR - Task failed with exception
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.8/site-packages/airflow/operators/python.py", line 181, in execute
+    return_value = self.execute_callable()
+  File "/home/airflow/.local/lib/python3.8/site-packages/airflow/operators/python.py", line 198, in execute_callable
+    return self.python_callable(*self.op_args, **self.op_kwargs)
+  File "/opt/airflow/dags/article_ingestion.py", line 75, in IT_website_to_GCS
+    main = Scraping(mainURL, "get_cat", source)
+  File "/opt/airflow/dags/article_ingestion.py", line 38, in __init__
+    req = requests.get(self.url)
+  File "/home/airflow/.local/lib/python3.8/site-packages/requests/api.py", line 73, in get
+    return request("get", url, params=params, **kwargs)
+  File "/home/airflow/.local/lib/python3.8/site-packages/requests/api.py", line 59, in request
+    return session.request(method=method, url=url, **kwargs)
+  File "/home/airflow/.local/lib/python3.8/site-packages/requests/sessions.py", line 575, in request
+    prep = self.prepare_request(req)
+  File "/home/airflow/.local/lib/python3.8/site-packages/requests/sessions.py", line 486, in prepare_request
+    p.prepare(
+  File "/home/airflow/.local/lib/python3.8/site-packages/requests/models.py", line 368, in prepare
+    self.prepare_url(url, params)
+  File "/home/airflow/.local/lib/python3.8/site-packages/requests/models.py", line 439, in prepare_url
+    raise MissingSchema(
+requests.exceptions.MissingSchema: Invalid URL 'None': No scheme supplied. Perhaps you meant https://None?
+[2023-12-11T06:32:24.078+0000] {taskinstance.py:1345} INFO - Marking task as FAILED. dag_id=IT_to_Pinecone_dag, task_id=IT_website_to_GCS, execution_date=20231211T061443, start_date=20231211T063223, end_date=20231211T063224
+[2023-12-11T06:32:24.101+0000] {warnings.py:109} WARNING - /home/***/.local/lib/python3.8/site-packages/***/utils/email.py:152: RemovedInAirflow3Warning: Fetching SMTP credentials from configuration variables will be deprecated in a future release. Please set credentials using a connection instead.
+  send_mime_email(e_from=mail_from, e_to=recipients, mime_msg=msg, conn_id=conn_id, dryrun=dryrun)
+
+[2023-12-11T06:32:24.102+0000] {configuration.py:676} WARNING - section/key [smtp/smtp_user] not found in config
+[2023-12-11T06:32:24.103+0000] {email.py:268} INFO - Email alerting: attempt 1
+[2023-12-11T06:32:24.113+0000] {configuration.py:676} WARNING - section/key [smtp/smtp_user] not found in config
+[2023-12-11T06:32:24.114+0000] {email.py:268} INFO - Email alerting: attempt 1
+[2023-12-11T06:32:24.115+0000] {taskinstance.py:1889} ERROR - Failed to send email to: ['***@***.com']
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.8/site-packages/airflow/models/taskinstance.py", line 1407, in _run_raw_task
+    self._execute_task_with_callbacks(context, test_mode)
+  File "/home/airflow/.local/lib/python3.8/site-packages/airflow/models/taskinstance.py", line 1558, in _execute_task_with_callbacks
+    result = self._execute_task(context, task_orig)
+  File "/home/airflow/.local/lib/python3.8/site-packages/airflow/models/taskinstance.py", line 1628, in _execute_task
+    result = execute_callable(context=context)
+  File "/home/airflow/.local/lib/python3.8/site-packages/airflow/operators/python.py", line 181, in execute
+    return_value = self.execute_callable()
+  File "/home/airflow/.local/lib/python3.8/site-packages/airflow/operators/python.py", line 198, in execute_callable
+    return self.python_callable(*self.op_args, **self.op_kwargs)
+  File "/opt/airflow/dags/article_ingestion.py", line 75, in IT_website_to_GCS
+    main = Scraping(mainURL, "get_cat", source)
+  File "/opt/airflow/dags/article_ingestion.py", line 38, in __init__
+    req = requests.get(self.url)
+  File "/home/airflow/.local/lib/python3.8/site-packages/requests/api.py", line 73, in get
+    return request("get", url, params=params, **kwargs)
+  File "/home/airflow/.local/lib/python3.8/site-packages/requests/api.py", line 59, in request
+    return session.request(method=method, url=url, **kwargs)
+  File "/home/airflow/.local/lib/python3.8/site-packages/requests/sessions.py", line 575, in request
+    prep = self.prepare_request(req)
+  File "/home/airflow/.local/lib/python3.8/site-packages/requests/sessions.py", line 486, in prepare_request
+    p.prepare(
+  File "/home/airflow/.local/lib/python3.8/site-packages/requests/models.py", line 368, in prepare
+    self.prepare_url(url, params)
+  File "/home/airflow/.local/lib/python3.8/site-packages/requests/models.py", line 439, in prepare_url
+    raise MissingSchema(
+requests.exceptions.MissingSchema: Invalid URL 'None': No scheme supplied. Perhaps you meant https://None?
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.8/site-packages/airflow/models/taskinstance.py", line 2295, in email_alert
+    send_email(task.email, subject, html_content)
+  File "/home/airflow/.local/lib/python3.8/site-packages/airflow/utils/email.py", line 78, in send_email
+    return backend(
+  File "/home/airflow/.local/lib/python3.8/site-packages/airflow/utils/email.py", line 152, in send_email_smtp
+    send_mime_email(e_from=mail_from, e_to=recipients, mime_msg=msg, conn_id=conn_id, dryrun=dryrun)
+  File "/home/airflow/.local/lib/python3.8/site-packages/airflow/utils/email.py", line 270, in send_mime_email
+    smtp_conn = _get_smtp_connection(smtp_host, smtp_port, smtp_timeout, smtp_ssl)
+  File "/home/airflow/.local/lib/python3.8/site-packages/airflow/utils/email.py", line 317, in _get_smtp_connection
+    else smtplib.SMTP(host=host, port=port, timeout=timeout)
+  File "/usr/local/lib/python3.8/smtplib.py", line 255, in __init__
+    (code, msg) = self.connect(host, port)
+  File "/usr/local/lib/python3.8/smtplib.py", line 339, in connect
+    self.sock = self._get_socket(host, port, self.timeout)
+  File "/usr/local/lib/python3.8/smtplib.py", line 310, in _get_socket
+    return socket.create_connection((host, port), timeout,
+  File "/usr/local/lib/python3.8/socket.py", line 808, in create_connection
+    raise err
+  File "/usr/local/lib/python3.8/socket.py", line 796, in create_connection
+    sock.connect(sa)
+OSError: [Errno 99] Cannot assign requested address
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.8/site-packages/airflow/models/taskinstance.py", line 1887, in handle_failure
+    self.email_alert(error, task)
+  File "/home/airflow/.local/lib/python3.8/site-packages/airflow/models/taskinstance.py", line 2297, in email_alert
+    send_email(task.email, subject, html_content_err)
+  File "/home/airflow/.local/lib/python3.8/site-packages/airflow/utils/email.py", line 78, in send_email
+    return backend(
+  File "/home/airflow/.local/lib/python3.8/site-packages/airflow/utils/email.py", line 152, in send_email_smtp
+    send_mime_email(e_from=mail_from, e_to=recipients, mime_msg=msg, conn_id=conn_id, dryrun=dryrun)
+  File "/home/airflow/.local/lib/python3.8/site-packages/airflow/utils/email.py", line 270, in send_mime_email
+    smtp_conn = _get_smtp_connection(smtp_host, smtp_port, smtp_timeout, smtp_ssl)
+  File "/home/airflow/.local/lib/python3.8/site-packages/airflow/utils/email.py", line 317, in _get_smtp_connection
+    else smtplib.SMTP(host=host, port=port, timeout=timeout)
+  File "/usr/local/lib/python3.8/smtplib.py", line 255, in __init__
+    (code, msg) = self.connect(host, port)
+  File "/usr/local/lib/python3.8/smtplib.py", line 339, in connect
+    self.sock = self._get_socket(host, port, self.timeout)
+  File "/usr/local/lib/python3.8/smtplib.py", line 310, in _get_socket
+    return socket.create_connection((host, port), timeout,
+  File "/usr/local/lib/python3.8/socket.py", line 808, in create_connection
+    raise err
+  File "/usr/local/lib/python3.8/socket.py", line 796, in create_connection
+    sock.connect(sa)
+OSError: [Errno 99] Cannot assign requested address
+[2023-12-11T06:32:24.134+0000] {standard_task_runner.py:104} ERROR - Failed to execute job 11 for task IT_website_to_GCS (Invalid URL 'None': No scheme supplied. Perhaps you meant https://None?; 572)
+[2023-12-11T06:32:24.181+0000] {local_task_job_runner.py:225} INFO - Task exited with return code 1

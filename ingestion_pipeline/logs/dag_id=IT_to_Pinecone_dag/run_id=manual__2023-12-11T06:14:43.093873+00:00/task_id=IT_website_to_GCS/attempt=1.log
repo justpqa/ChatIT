@@ -1,0 +1,35 @@
+[2023-12-11T06:22:06.822+0000] {taskinstance.py:1103} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: IT_to_Pinecone_dag.IT_website_to_GCS manual__2023-12-11T06:14:43.093873+00:00 [queued]>
+[2023-12-11T06:22:06.837+0000] {taskinstance.py:1103} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: IT_to_Pinecone_dag.IT_website_to_GCS manual__2023-12-11T06:14:43.093873+00:00 [queued]>
+[2023-12-11T06:22:06.837+0000] {taskinstance.py:1308} INFO - Starting attempt 1 of 3
+[2023-12-11T06:22:06.855+0000] {taskinstance.py:1327} INFO - Executing <Task(PythonOperator): IT_website_to_GCS> on 2023-12-11 06:14:43.093873+00:00
+[2023-12-11T06:22:06.878+0000] {standard_task_runner.py:57} INFO - Started process 375 to run task
+[2023-12-11T06:22:06.887+0000] {standard_task_runner.py:84} INFO - Running: ['***', 'tasks', 'run', 'IT_to_Pinecone_dag', 'IT_website_to_GCS', 'manual__2023-12-11T06:14:43.093873+00:00', '--job-id', '9', '--raw', '--subdir', 'DAGS_FOLDER/article_ingestion.py', '--cfg-path', '/tmp/tmp7okp48f2']
+[2023-12-11T06:22:06.891+0000] {standard_task_runner.py:85} INFO - Job 9: Subtask IT_website_to_GCS
+[2023-12-11T06:22:06.973+0000] {task_command.py:410} INFO - Running <TaskInstance: IT_to_Pinecone_dag.IT_website_to_GCS manual__2023-12-11T06:14:43.093873+00:00 [running]> on host 5725e2187d30
+[2023-12-11T06:22:07.082+0000] {taskinstance.py:1545} INFO - Exporting env vars: AIRFLOW_CTX_DAG_EMAIL='***@***.com' AIRFLOW_CTX_DAG_OWNER='***' AIRFLOW_CTX_DAG_ID='IT_to_Pinecone_dag' AIRFLOW_CTX_TASK_ID='IT_website_to_GCS' AIRFLOW_CTX_EXECUTION_DATE='2023-12-11T06:14:43.093873+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='manual__2023-12-11T06:14:43.093873+00:00'
+[2023-12-11T06:22:07.194+0000] {taskinstance.py:1824} ERROR - Task failed with exception
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.8/site-packages/airflow/operators/python.py", line 181, in execute
+    return_value = self.execute_callable()
+  File "/home/airflow/.local/lib/python3.8/site-packages/airflow/operators/python.py", line 198, in execute_callable
+    return self.python_callable(*self.op_args, **self.op_kwargs)
+  File "/opt/airflow/dags/article_ingestion.py", line 75, in IT_website_to_GCS
+    main = Scraping(mainURL, "get_cat", source)
+  File "/opt/airflow/dags/article_ingestion.py", line 38, in __init__
+    req = requests.get(self.url)
+  File "/home/airflow/.local/lib/python3.8/site-packages/requests/api.py", line 73, in get
+    return request("get", url, params=params, **kwargs)
+  File "/home/airflow/.local/lib/python3.8/site-packages/requests/api.py", line 59, in request
+    return session.request(method=method, url=url, **kwargs)
+  File "/home/airflow/.local/lib/python3.8/site-packages/requests/sessions.py", line 575, in request
+    prep = self.prepare_request(req)
+  File "/home/airflow/.local/lib/python3.8/site-packages/requests/sessions.py", line 486, in prepare_request
+    p.prepare(
+  File "/home/airflow/.local/lib/python3.8/site-packages/requests/models.py", line 368, in prepare
+    self.prepare_url(url, params)
+  File "/home/airflow/.local/lib/python3.8/site-packages/requests/models.py", line 439, in prepare_url
+    raise MissingSchema(
+requests.exceptions.MissingSchema: Invalid URL 'None': No scheme supplied. Perhaps you meant https://None?
+[2023-12-11T06:22:07.208+0000] {taskinstance.py:1345} INFO - Marking task as UP_FOR_RETRY. dag_id=IT_to_Pinecone_dag, task_id=IT_website_to_GCS, execution_date=20231211T061443, start_date=20231211T062206, end_date=20231211T062207
+[2023-12-11T06:22:07.225+0000] {standard_task_runner.py:104} ERROR - Failed to execute job 9 for task IT_website_to_GCS (Invalid URL 'None': No scheme supplied. Perhaps you meant https://None?; 375)
+[2023-12-11T06:22:07.257+0000] {local_task_job_runner.py:225} INFO - Task exited with return code 1
