@@ -1,6 +1,7 @@
 torch
+accelerate
 transformers
 llama-index
-llama-cpp-python
 python-dotenv
 pinecone-client
+Flask
