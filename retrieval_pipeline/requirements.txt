@@ -2,6 +2,7 @@ torch
 accelerate
 transformers
 llama-index
+langchain
 python-dotenv
 pinecone-client
 Flask
