@@ -4,7 +4,7 @@ from llama_index.vector_stores import PineconeVectorStore, VectorStoreQuery
 from llama_index.embeddings import HuggingFaceEmbedding
 from llama_index.schema import NodeWithScore
 from llama_index.query_engine import RetrieverQueryEngine
-from llama_index.llms import LangChainLLM
+from llama_index.llms import HuggingFaceLLM
 from llama_index.prompts import PromptTemplate
 from custom_llm import CustomLLM
 from pinecone_retriever import PineconeRetriever
@@ -36,12 +36,22 @@ def init_query_engine():
     )
 
     query_wrapper_prompt = PromptTemplate(
-    "Below is an instruction that describes a task. "
     "Write a response that appropriately completes the request.\n\n"
-    "### Instruction:\n{query_str}\n\n### Response:"
+    "### Question:\n{query_str}\n\n### Response:"
     )
         
-    llm = CustomLLM()
+    llm = HuggingFaceLLM(
+        context_window=1024,
+        max_new_tokens=256,
+        generate_kwargs={"temperature": 0.25, "do_sample": False},
+        query_wrapper_prompt=query_wrapper_prompt,
+        tokenizer_name="llmware/bling-1b-0.1",
+        model_name="llmware/bling-1b-0.1",
+        device_map="auto",
+        tokenizer_kwargs={"max_length": 1024},
+        # uncomment this if using CUDA to reduce memory usage
+        # model_kwargs={"torch_dtype": torch.float16}
+    )
 
     service_context = ServiceContext.from_defaults(
         llm=llm, embed_model=embed_model
