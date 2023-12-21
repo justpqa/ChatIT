@@ -1,8 +1,7 @@
 torch
-accelerate
 transformers
+sentence-transformers
 llama-index
-langchain
 python-dotenv
 pinecone-client
 Flask

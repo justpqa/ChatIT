@@ -5,8 +5,8 @@ from airflow.operators.python import PythonOperator
 from google.cloud import storage
 from llama_index.vector_stores import PineconeVectorStore, VectorStoreQuery
 from llama_index.schema import TextNode
-from llama_index.embeddings import HuggingFaceEmbedding
 from llama_index.text_splitter import SentenceSplitter
+from gensim.models.doc2vec import Doc2Vec, TaggedDocument
 import pinecone
 from google.cloud import storage
 import re
@@ -23,12 +23,11 @@ my_index = os.environ.get("PINECONE_INDEX")
 pinecone.init(api_key=api_key, environment=environment)
 storage_client = storage.Client()
 bucket = storage_client.bucket(os.environ.get("bucket"))
-folder_name = "IT " + str(datetime.now())
-embed_model = HuggingFaceEmbedding(model_name=os.environ.get("DEFAULT_EMBED_MODEL"))
+embed_model = Doc2Vec(vector_size=int(os.environ.get("DEFAULT_EMBED_DIM")), workers=4, epochs=500)
 embed_dim = int(os.environ.get("DEFAULT_EMBED_DIM"))
 storage_client = storage.Client()
 bucket = storage_client.bucket(os.environ.get("bucket"))
-sen_splitter = SentenceSplitter(separator = ".", paragraph_separator = "/n/n/n")
+sen_splitter = SentenceSplitter(separator = "\n") # Use defaulr first
     
 class Scraping:
     def __init__(self, url, mode, source):
@@ -62,7 +61,12 @@ class Scraping:
             res = main_content.text
             return res
 
-def IT_website_to_GCS(folder_name):
+def get_folder_name(ti):
+    return "IT " + str(datetime.now())
+
+def IT_website_to_GCS(ti):
+    
+    folder = ti.xcom_pull(task_ids = "get_folder_name")
     
     mainURL = os.environ.get("mainurl")
     source = os.environ.get("headurl")
@@ -85,7 +89,7 @@ def IT_website_to_GCS(folder_name):
     for i in range(len(article_lst)):
         temp = Scraping(article_lst[i], "get_text", source)
         content = temp.scraping()
-        blob = bucket.blob(f"{folder_name}/article_{i}.txt")
+        blob = bucket.blob(f"{folder}/article_{i}.txt")
         blob.upload_from_string(content)
 
 def create_Pinecone_Index(my_index, embed_dim):
@@ -95,12 +99,17 @@ def create_Pinecone_Index(my_index, embed_dim):
     pinecone.create_index(my_index, dimension = embed_dim, metric="euclidean", pod_type="p1")
     time.sleep(15)
         
-def GCS_to_Pinecone(my_index, embed_model, bucket, folder, sen_splitter):
+def GCS_to_Pinecone(ti, my_index, embed_model, bucket, sen_splitter):
+    
+    folder = ti.xcom_pull(task_ids = "get_folder_name")
+    
     pinecone_index = pinecone.Index(my_index)
     vector_store = PineconeVectorStore(pinecone_index=pinecone_index)
     
     nodes = []
-    for inx, b in enumerate(list(bucket.list_blobs(prefix = folder))):
+    text_lst = []
+    prefix_name = folder + '/'
+    for inx, b in enumerate(list(bucket.list_blobs(prefix = prefix_name))):
         # extract the text and process it
         t = bucket.blob(b.name).download_as_text()
         #t = re.sub(r'[^a-zA-Z0-9 \\.]', ' ', t)
@@ -108,16 +117,35 @@ def GCS_to_Pinecone(my_index, embed_model, bucket, folder, sen_splitter):
         
         # split the text
         curr_text_chunks = sen_splitter.split_text(t)
-        
         # add these chunks to nodes with embedding
         #for chunk in curr_text_chunks:
         for chunk in curr_text_chunks:
             node = TextNode(text=chunk)
-            src_doc_inx = inx
-            src_doc = t
-            node.embedding = embed_model.get_text_embedding(node.get_content(metadata_mode="all"))
             nodes.append(node)
+            text_lst.append(chunk)
+            #src_doc_inx = inx
+            #src_doc = t
         
+    print(f"Current number of documents: {len(nodes)}")
+    
+    # train embedding models
+    tagged_text_lst = [TaggedDocument(words=doc.split(), tags=[str(idx)]) for idx, doc in enumerate(text_lst)]
+    embed_model.build_vocab(tagged_text_lst)
+    embed_model.train(tagged_text_lst, total_examples=embed_model.corpus_count, epochs=embed_model.epochs)
+    
+    print("finished training step")
+    
+    for inx, node in enumerate(nodes):
+        node.embedding = embed_model.infer_vector(text_lst[inx].split())
+        
+    print("Finished getting embeddings")
+    
+    embed_model.save('doc2vec.model')
+    blob = bucket.blob("models/doc2vec.model")
+    blob.upload_from_filename('doc2vec.model')
+    
+    print("Finished saving model files")
+    
     # add the list of nodes to vector store
     vector_store.add(nodes) 
     
@@ -125,7 +153,7 @@ def GCS_to_Pinecone(my_index, embed_model, bucket, folder, sen_splitter):
 default_args = {
     'owner': 'airflow',
     'depends_on_past': True,    
-    'start_date': datetime(2023, 6, 19),
+    'start_date': datetime(2023, 12, 18),
     'end_date': datetime(2100, 12, 31),
     'email': ['airflow@airflow.com'],
     'email_on_failure': True,
@@ -141,12 +169,17 @@ with DAG(
     max_active_runs=1
 ) as dag:
     
+    get_folder_name_task = PythonOperator(
+        task_id = "get_folder_name",
+        python_callable = get_folder_name,
+        provide_context = True,
+        dag = dag  
+    )
+    
     IT_website_to_GCS_task = PythonOperator(
         task_id = "IT_website_to_GCS",
         python_callable = IT_website_to_GCS,
-        op_kwargs = {
-            "folder_name": folder_name
-        },
+        provide_context = True,
         dag = dag
     )
 
@@ -163,14 +196,14 @@ with DAG(
     GCS_to_Pinecone_task = PythonOperator(
         task_id = "GCS_to_Pinecone",
         python_callable = GCS_to_Pinecone,
+        provide_context = True,
         op_kwargs = {
             "my_index": my_index,
             "embed_model": embed_model,
             "bucket": bucket,
-            "folder": folder_name,
             "sen_splitter": sen_splitter
         },
         dag = dag
     )
     
-IT_website_to_GCS_task >> create_Pinecone_Index_task >> GCS_to_Pinecone_task
+get_folder_name_task >> IT_website_to_GCS_task >> create_Pinecone_Index_task >> GCS_to_Pinecone_task
